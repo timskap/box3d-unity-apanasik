@@ -5,7 +5,7 @@ Erin Catto, author of Box2D. The full native C API (~580 functions) is exposed t
 Unity-friendly C# layer: no pointers in user code, no per-frame allocations, deterministic
 simulation, and excellent multithreaded performance.
 
-![Playground](https://projects.cdn.aapanasik.com/box3d-unity/box3d-unity.gif)
+![Playground](https://projects.cdn.aapanasik.com/box3d-unity/unity-box3d.gif)
 
 This project was inspired by, and owes its architecture to, two projects:
 
@@ -54,7 +54,7 @@ crowds are its home turf; one giant coupled constraint network is its least favo
 
 ## Installation
 
-Install via the Unity Package Manager using the git URL (latter I'll add UPM package):
+Install via the Unity Package Manager using the git URL (an OpenUPM listing will follow later):
 
 ```
 https://github.com/Suvitruf/box3d-unity.git
@@ -69,6 +69,7 @@ Requires **Unity 6000.0+**. Native binaries are included for **Windows x64**, **
 ```csharp
 using Box3d;
 using Unity.Mathematics;
+using UnityEngine;
 
 World world = World.Create(WorldDef.Default);
 
@@ -95,8 +96,10 @@ world.Destroy();
 ```
 
 See `Documentation~/getting-started.md` for the full walkthrough, and install the **samples** from
-the Package Manager window: basic simulation, joints, mouse drag, character controller, a drivable
-vehicle, and benchmark scenes comparing against PhysX.
+the Package Manager window: an interactive playground, basic simulation, joints, mouse drag,
+character controller, a drivable vehicle, and benchmark scenes comparing against PhysX.
+The sample scenes assume URP (they render fine elsewhere, minus materials), and the interactive
+ones require the Input System package.
 
 ## Documentation
 
