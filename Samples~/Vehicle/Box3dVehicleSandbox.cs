@@ -1,3 +1,4 @@
+#if ENABLE_INPUT_SYSTEM
 using System;
 using Box3d;
 using Unity.Mathematics;
@@ -155,7 +156,8 @@ public class Box3dVehicleSandbox : MonoBehaviour
         if (keyboard == null) return;
 
         float throttle = (keyboard.wKey.isPressed ? 1f : 0f) - (keyboard.sKey.isPressed ? 1f : 0f);
-        float steer = (keyboard.aKey.isPressed ? 1f : 0f) - (keyboard.dKey.isPressed ? 1f : 0f);
+        // Positive steering angle turns right with these joint frames — D is right, A is left.
+        float steer = (keyboard.dKey.isPressed ? 1f : 0f) - (keyboard.aKey.isPressed ? 1f : 0f);
 
         // The sample negates spin speed: positive throttle drives forward with these frames.
         _rearLeft.SetSpinMotorSpeed(-SpinSpeed * throttle);
@@ -204,3 +206,15 @@ public class Box3dVehicleSandbox : MonoBehaviour
         if (_terrainMesh.IsCreated) _terrainMesh.Destroy();
     }
 }
+#else
+using UnityEngine;
+
+/// <summary>Inert stub — this sample requires the Input System package (com.unity.inputsystem).</summary>
+public class Box3dVehicleSandbox : MonoBehaviour
+{
+    private void Start()
+    {
+        Debug.LogWarning("Box3dVehicleSandbox requires the Input System package (com.unity.inputsystem).");
+    }
+}
+#endif
