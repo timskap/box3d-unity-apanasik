@@ -54,6 +54,11 @@
       "displayName": "Benchmarks vs PhysX",
       "description": "Side-by-side performance scenes (sphere rain, joint-grid cloth, island workloads) comparing Box3d and Unity's built-in PhysX, with CSV metric export.",
       "path": "Samples~/Benchmarks"
+    },
+    {
+      "displayName": "Playground",
+      "description": "Interactive sandbox: spawn textured objects from a menu, drag/throw with the mouse, right-click explosions, a seesaw, a conveyor belt, impact flashes and a live step-time readout. Requires the Input System package.",
+      "path": "Samples~/Playground"
     }
   ]
 }

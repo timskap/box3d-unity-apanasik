@@ -5,6 +5,8 @@ Erin Catto, author of Box2D. The full native C API (~580 functions) is exposed t
 Unity-friendly C# layer: no pointers in user code, no per-frame allocations, deterministic
 simulation, and excellent multithreaded performance.
 
+![Playground](https://projects.cdn.aapanasik.com/box3d-unity/box3d-unity.gif)
+
 This project was inspired by, and owes its architecture to, two projects:
 
 - **[Box3d](https://github.com/erincatto/box3d)** by Erin Catto — the engine itself. This package
