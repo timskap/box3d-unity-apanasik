@@ -123,5 +123,15 @@ namespace Box3d
         {
             return Id.GetHashCode();
         }
+        public static bool operator ==(World left, World right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(World left, World right)
+        {
+            return !left.Equals(right);
+        }
+
     }
 }

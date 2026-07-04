@@ -39,5 +39,15 @@ namespace Box3d
         {
             return Id.GetHashCode();
         }
+        public static bool operator ==(Joint left, Joint right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Joint left, Joint right)
+        {
+            return !left.Equals(right);
+        }
+
     }
 }

@@ -51,5 +51,15 @@ namespace Box3d
         {
             return Id.GetHashCode();
         }
+        public static bool operator ==(Shape left, Shape right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Shape left, Shape right)
+        {
+            return !left.Equals(right);
+        }
+
     }
 }

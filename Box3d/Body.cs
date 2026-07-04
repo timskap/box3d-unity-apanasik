@@ -29,6 +29,12 @@ namespace Box3d
             set => UnsafeBindings.b3Body_SetLinearVelocity(Id, value);
         }
 
+        public float3 AngularVelocity
+        {
+            get => UnsafeBindings.b3Body_GetAngularVelocity(Id);
+            set => UnsafeBindings.b3Body_SetAngularVelocity(Id, value);
+        }
+
         public bool IsAwake => UnsafeBindings.b3Body_IsAwake(Id);
 
         /// <summary>Application-specific data attached to the body. Delivered back in
@@ -137,5 +143,15 @@ namespace Box3d
         {
             return Id.GetHashCode();
         }
+        public static bool operator ==(Body left, Body right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(Body left, Body right)
+        {
+            return !left.Equals(right);
+        }
+
     }
 }

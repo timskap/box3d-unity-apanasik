@@ -91,6 +91,38 @@ namespace Box3d.Tests
         }
 
         [Test]
+        public void ConsistencySurface_IsValidEqualityAngularVelocity()
+        {
+            World world = World.Create(WorldDef.Default);
+
+            Body anchor = world.CreateBody(BodyDef.Default);
+            BodyDef dynamicDef = BodyDef.Default;
+            dynamicDef.Type = BodyType.Dynamic;
+            dynamicDef.Position = new float3(1f, 0f, 0f);
+            Body body = world.CreateBody(dynamicDef);
+            body.CreateSphereShape(ShapeDef.Default, new Sphere { Radius = 0.5f });
+
+            body.AngularVelocity = new float3(0f, 2f, 0f);
+            Assert.AreEqual(2f, body.AngularVelocity.y, 1e-4f, "AngularVelocity property should round-trip");
+
+            RevoluteJointDef jointDef = RevoluteJointDef.Default;
+            jointDef.Base.BodyIdA = anchor.Id;
+            jointDef.Base.BodyIdB = body.Id;
+            RevoluteJoint joint = world.CreateRevoluteJoint(jointDef);
+            RevoluteJoint copy = joint;
+
+            Assert.IsTrue(joint.IsValid, "typed joint IsValid should work without widening");
+            Assert.IsTrue(joint == copy, "equality operators should compare ids");
+            Assert.IsFalse(joint != copy);
+
+            ((Joint)joint).Destroy();
+            Assert.IsFalse(joint.IsValid, "typed joint should report stale after destroy");
+            Assert.IsTrue(joint == copy, "stale ids still compare equal");
+
+            world.Destroy();
+        }
+
+        [Test]
         public void TypedJointAccessors_RoundTrip()
         {
             World world = World.Create(WorldDef.Default);
