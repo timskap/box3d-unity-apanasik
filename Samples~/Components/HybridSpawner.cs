@@ -80,6 +80,38 @@ public class HybridSpawner : MonoBehaviour
         }
     }
 
+    // A compound body: one Box3dBody with two child sphere shapes. If compound gathering works the
+    // two spheres tumble together as one rigid "peanut"; if not, they'd fall independently.
+    private void SpawnCompound()
+    {
+        for (int i = 0; i < SpawnCount; i++)
+        {
+            var root = new GameObject("Compound Peanut");
+            root.SetActive(false);
+            root.transform.position = new Vector3(
+                Random.Range(-3f, 3f), Random.Range(6f, 11f), Random.Range(-3f, 3f));
+            root.transform.rotation = Random.rotation;
+
+            for (int side = -1; side <= 1; side += 2)
+            {
+                GameObject ball = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                Destroy(ball.GetComponent<Collider>());
+                ball.transform.SetParent(root.transform, worldPositionStays: false);
+                ball.transform.localPosition = new Vector3(side * 0.6f, 0f, 0f);
+                if (BaseMaterial)
+                {
+                    ball.GetComponent<MeshRenderer>().material =
+                        new Material(BaseMaterial) { color = Color.HSVToRGB(Random.value, 0.55f, 1f) };
+                }
+                ball.AddComponent<Box3dSphereShape>().SetRestitution(Bounciness);
+            }
+
+            root.AddComponent<Box3dBody>(); // gathers both child sphere shapes
+            root.SetActive(true);
+            _spawned.Add(root);
+        }
+    }
+
     private void Clear()
     {
         foreach (GameObject go in _spawned)
@@ -91,7 +123,7 @@ public class HybridSpawner : MonoBehaviour
 
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(10f, 10f, 220f, 290f), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(10f, 10f, 220f, 320f), GUI.skin.box);
         GUILayout.Label("<b>Component layer test</b>", new GUIStyle(GUI.skin.label) { richText = true });
 
         GUILayout.Label($"Count per press: {SpawnCount}");
@@ -105,6 +137,7 @@ public class HybridSpawner : MonoBehaviour
         if (GUILayout.Button($"Spawn {SpawnCount} boxes")) Spawn(ShapeKind.Box);
         if (GUILayout.Button($"Spawn {SpawnCount} capsules")) Spawn(ShapeKind.Capsule);
         if (GUILayout.Button($"Spawn {SpawnCount} hulls")) Spawn(ShapeKind.Hull);
+        if (GUILayout.Button($"Spawn {SpawnCount} compounds")) SpawnCompound();
         if (GUILayout.Button("Clear")) Clear();
 
         GUILayout.FlexibleSpace();
