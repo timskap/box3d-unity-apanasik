@@ -7,6 +7,7 @@ namespace Box3d.Tests
         [Test]
         public void GetVersion_MatchesPinnedNativeBuild()
         {
+            // Update these on box3d version bumps (see Box3d.Native~/VERSION).
             Box3dVersion version = Box3dApi.GetVersion();
 
             Assert.AreEqual(0, version.Major);

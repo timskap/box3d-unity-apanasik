@@ -143,6 +143,78 @@ namespace Box3d.Tests
         }
 
         [Test]
+        public void MeshFromRawTriangleSoup_SupportsFallingSphere()
+        {
+            // Exercises the hand-marshalled b3MeshDef path (pinned vertex/index spans), unlike the
+            // engine-generated CreateBox/CreateGrid variants. Quad winding matches the terrain
+            // generator (upward faces): (0,2,1)(1,2,3) over an x-fastest vertex grid.
+            var vertices = new float3[]
+            {
+                new float3(-5f, 0f, -5f), new float3(5f, 0f, -5f),
+                new float3(-5f, 0f, 5f), new float3(5f, 0f, 5f),
+            };
+            var triangles = new[] { 0, 2, 1, 1, 2, 3 };
+
+            TriangleMesh mesh = TriangleMesh.Create(vertices, triangles);
+            Assert.IsTrue(mesh.IsCreated);
+
+            World world = World.Create(WorldDef.Default);
+            Body ground = world.CreateBody(BodyDef.Default);
+            Assert.IsTrue(ground.CreateMeshShape(ShapeDef.Default, mesh).IsValid);
+
+            BodyDef sphereDef = BodyDef.Default;
+            sphereDef.Type = BodyType.Dynamic;
+            sphereDef.Position = new float3(0f, 3f, 0f);
+            Body sphere = world.CreateBody(sphereDef);
+            sphere.CreateSphereShape(ShapeDef.Default, new Sphere { Radius = 0.5f });
+
+            for (int i = 0; i < 300; i++)
+            {
+                world.Step(1f / 60f);
+            }
+
+            Assert.AreEqual(0.5f, sphere.Position.y, 0.05f, "sphere should rest exactly on the y=0 quad");
+            Assert.IsFalse(sphere.IsAwake);
+
+            world.Destroy();
+            mesh.Destroy();
+        }
+
+        [Test]
+        public void HeightFieldFromRawHeights_SupportsFallingSphere()
+        {
+            // Exercises the hand-marshalled b3HeightFieldDef path (pinned heights span): a flat
+            // 5×5 field at height 2 within a [0,4] quantization range.
+            var heights = new float[25];
+            for (int i = 0; i < heights.Length; i++) heights[i] = 2f;
+
+            HeightField field = HeightField.Create(heights, 5, 5, new float3(1f, 1f, 1f),
+                globalMinimumHeight: 0f, globalMaximumHeight: 4f);
+            Assert.IsTrue(field.IsCreated);
+
+            World world = World.Create(WorldDef.Default);
+            Body ground = world.CreateBody(BodyDef.Default);
+            Assert.IsTrue(ground.CreateHeightFieldShape(ShapeDef.Default, field).IsValid);
+
+            BodyDef sphereDef = BodyDef.Default;
+            sphereDef.Type = BodyType.Dynamic;
+            sphereDef.Position = new float3(1f, 5f, 1f);
+            Body sphere = world.CreateBody(sphereDef);
+            sphere.CreateSphereShape(ShapeDef.Default, new Sphere { Radius = 0.3f });
+
+            for (int i = 0; i < 300; i++)
+            {
+                world.Step(1f / 60f);
+            }
+
+            Assert.IsFalse(sphere.IsAwake, "sphere should come to rest on the height field");
+            Assert.Greater(sphere.Position.y, 1.5f, "sphere should rest near the field's height of 2");
+
+            world.Destroy();
+            field.Destroy();
+        }
+
+        [Test]
         public void CompoundShape_BuildsFromInstances()
         {
             Hull hull = Hull.CreateCylinder(1f, 0.4f);

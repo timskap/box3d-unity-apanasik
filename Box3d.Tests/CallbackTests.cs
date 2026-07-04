@@ -15,12 +15,23 @@ namespace Box3d.Tests
         private static int _frictionCalls;
         private static int _restitutionCalls;
 
+        private World _world;
+
+        [TearDown]
+        public void DestroyWorld()
+        {
+            // Destroy clears the per-world callback slots AND the global material mixers, so a
+            // failed assert mid-test cannot leak a registered delegate into later tests.
+            if (_world.IsValid) _world.Destroy();
+        }
+
         [Test]
         public void CustomFilter_ReturningFalse_PreventsCollision()
         {
             WorldDef worldDef = WorldDef.Default;
             worldDef.Gravity = float3.zero;
-            World world = World.Create(worldDef);
+            _world = World.Create(worldDef);
+            World world = _world;
 
             _filterCalls = 0;
             world.SetCustomFilterCallback((shapeA, shapeB) =>
@@ -43,13 +54,14 @@ namespace Box3d.Tests
             Assert.Less(math.distance(bodyA.Position, bodyB.Position), 0.3f,
                 "filtered-out pair must not be pushed apart");
 
-            world.Destroy();
+            _world.Destroy();
         }
 
         [Test]
         public void PreSolve_ReturningFalse_DisablesContact()
         {
-            World world = World.Create(WorldDef.Default);
+            _world = World.Create(WorldDef.Default);
+            World world = _world;
 
             Body ground = world.CreateBody(BodyDef.Default);
             BoxHull hull = BoxHull.Create(10f, 0.5f, 10f);
@@ -78,7 +90,7 @@ namespace Box3d.Tests
             Assert.Greater(_preSolveCalls, 0, "pre-solve callback should have been invoked");
             Assert.Less(sphere.Position.y, -2f, "disabled contacts should let the sphere fall through the ground");
 
-            world.Destroy();
+            _world.Destroy();
         }
 
         [Test]
@@ -86,7 +98,8 @@ namespace Box3d.Tests
         {
             WorldDef worldDef = WorldDef.Default;
             worldDef.EnableSleep = false;
-            World world = World.Create(worldDef);
+            _world = World.Create(worldDef);
+            World world = _world;
 
             _frictionCalls = 0;
             _restitutionCalls = 0;
@@ -126,9 +139,7 @@ namespace Box3d.Tests
             Assert.Greater(_restitutionCalls, 0, "restitution mixer should be invoked for the bouncing contact");
             Assert.AreEqual(77ul, seenFrictionId, "user material id should flow through to the mixer");
 
-            world.SetFrictionCallback(null);
-            world.SetRestitutionCallback(null);
-            world.Destroy();
+            _world.Destroy();
         }
 
         private static Body CreateDynamicSphere(World world, float3 position, in ShapeDef shapeDef)
