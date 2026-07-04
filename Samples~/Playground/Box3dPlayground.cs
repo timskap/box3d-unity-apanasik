@@ -37,6 +37,11 @@ public class Box3dPlayground : MonoBehaviour
     [SerializeField, Tooltip("Box3d worker threads. 0 = auto (half the logical cores).")]
     private int WorkerCount = 0;
 
+    [SerializeField, Tooltip("Base lit material for spawned objects. A scene-referenced asset keeps " +
+                             "the shader from being stripped in player builds (everything else here " +
+                             "is created at runtime).")]
+    private Material BaseMaterial;
+
     private World _world;
     private Body _mouseAnchor;
     private Camera _camera;
@@ -87,6 +92,7 @@ public class Box3dPlayground : MonoBehaviour
         visual.name = "Ground";
         visual.transform.localScale = new Vector3(60f, 1f, 60f);
         Destroy(visual.GetComponent<Collider>());
+        if (BaseMaterial) visual.GetComponent<MeshRenderer>().sharedMaterial = BaseMaterial;
     }
 
     private void CreateConveyor()
@@ -107,7 +113,10 @@ public class Box3dPlayground : MonoBehaviour
         visual.transform.position = new Vector3(-6f, 0.65f, 0f);
         visual.transform.localScale = new Vector3(3f, 0.3f, 10f);
         Destroy(visual.GetComponent<Collider>());
-        visual.GetComponent<MeshRenderer>().material.color = new Color(0.25f, 0.45f, 0.9f);
+        MeshRenderer beltRenderer = visual.GetComponent<MeshRenderer>();
+        Material beltMaterial = CreateInstanceMaterial(beltRenderer);
+        beltMaterial.color = new Color(0.25f, 0.45f, 0.9f);
+        beltRenderer.sharedMaterial = beltMaterial;
     }
 
     private void CreateSeesaw()
@@ -124,6 +133,7 @@ public class Box3dPlayground : MonoBehaviour
         pivotVisual.transform.position = new Vector3(6f, 0.8f, 0f);
         pivotVisual.transform.localScale = new Vector3(0.4f, 0.6f, 0.4f);
         Destroy(pivotVisual.GetComponent<Collider>());
+        if (BaseMaterial) pivotVisual.GetComponent<MeshRenderer>().sharedMaterial = BaseMaterial;
 
         // Dynamic plank on a revolute hinge (z-axis).
         BodyDef plankDef = BodyDef.Default;
@@ -274,12 +284,13 @@ public class Box3dPlayground : MonoBehaviour
     private void Register(Body body, Transform visual, MeshRenderer renderer, Color tint, bool persistent)
     {
         body.UserData = (IntPtr)_objects.Count;
-        Material material = renderer.material;
+        Material material = CreateInstanceMaterial(renderer);
         material.color = tint;
         foreach (MeshRenderer child in visual.GetComponentsInChildren<MeshRenderer>())
         {
             child.sharedMaterial = material;
         }
+        renderer.sharedMaterial = material;
         _objects.Add(new SpawnedObject
         {
             Body = body,
@@ -310,6 +321,13 @@ public class Box3dPlayground : MonoBehaviour
         {
             _objects[i].Body.UserData = (IntPtr)i;
         }
+    }
+
+    private Material CreateInstanceMaterial(MeshRenderer renderer)
+    {
+        // Prefer the scene-referenced asset: runtime-only scenes get their default material and
+        // shader stripped from player builds (the "everything is magenta" trap).
+        return BaseMaterial ? new Material(BaseMaterial) : renderer.material;
     }
 
     private static Texture2D CreateCheckerTexture()
