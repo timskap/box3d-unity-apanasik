@@ -83,5 +83,11 @@ namespace Box3d
         {
             return UnsafeBindings.b3MakeCubeHull(halfWidth);
         }
+
+        /// <summary>A box hull with the given half-extents, centered at <paramref name="offset"/>.</summary>
+        public static BoxHull CreateOffset(float halfX, float halfY, float halfZ, float3 offset)
+        {
+            return UnsafeBindings.b3MakeOffsetBoxHull(halfX, halfY, halfZ, offset);
+        }
     }
 }
