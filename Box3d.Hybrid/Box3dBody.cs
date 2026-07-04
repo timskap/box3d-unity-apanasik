@@ -95,11 +95,17 @@ namespace Box3d.Hybrid
             def.UserData = GCHandle.ToIntPtr(_handle);
             _body = _world.World.CreateBody(def);
 
-            float3 scale = transform.lossyScale;
-            _shapes = GetComponents<Box3dShape>();
+            var shapes = new System.Collections.Generic.List<Box3dShape>();
+            GatherShapes(transform, shapes, isRoot: true);
+            _shapes = shapes.ToArray();
+
+            quaternion bodyInverse = math.inverse((quaternion)transform.rotation);
             foreach (Box3dShape shape in _shapes)
             {
-                shape.AttachTo(_body, scale);
+                Transform shapeTransform = shape.transform;
+                float3 localPosition = transform.InverseTransformPoint(shapeTransform.position);
+                quaternion localRotation = math.mul(bodyInverse, shapeTransform.rotation);
+                shape.AttachTo(_body, localPosition, localRotation, shapeTransform.lossyScale);
             }
 
             if (Type == Box3dBodyType.Kinematic) _world.AddKinematic(this);
@@ -133,6 +139,24 @@ namespace Box3d.Hybrid
             }
             if (_handle.IsAllocated) _handle.Free();
         }
+
+        // Collects shape components on this GameObject and descendants, stopping at any nested
+        // Box3dBody (that subtree belongs to the other body). Unity's compound-collider gathering.
+        private static void GatherShapes(Transform node, System.Collections.Generic.List<Box3dShape> result, bool isRoot)
+        {
+            if (!isRoot && node.GetComponent<Box3dBody>()) return;
+
+            node.GetComponents(TempShapes);
+            result.AddRange(TempShapes);
+
+            for (int i = 0; i < node.childCount; i++)
+            {
+                GatherShapes(node.GetChild(i), result, isRoot: false);
+            }
+        }
+
+        private static readonly System.Collections.Generic.List<Box3dShape> TempShapes =
+            new System.Collections.Generic.List<Box3dShape>();
 
         /// <summary>Called by the world (kinematic list only) before each step.</summary>
         internal void PushKinematic(float deltaTime)

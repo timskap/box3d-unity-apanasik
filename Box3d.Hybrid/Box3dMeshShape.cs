@@ -20,7 +20,7 @@ namespace Box3d.Hybrid
             Mesh = mesh;
         }
 
-        protected override Shape CreateShape(Body body, float3 scale)
+        protected override Shape CreateShape(Body body, float3 localPosition, quaternion localRotation, float3 scale)
         {
             if (!Mesh)
             {
@@ -42,14 +42,16 @@ namespace Box3d.Hybrid
                 return default;
             }
 
+            // Bake the local transform and scale into the vertices (mesh creation takes no
+            // transform), then create with unit scale.
             var points = new float3[vertices.Length];
             for (int i = 0; i < vertices.Length; i++)
             {
-                points[i] = (float3)vertices[i] + LocalCenter;
+                points[i] = localPosition + math.mul(localRotation, ((float3)vertices[i] + LocalCenter) * scale);
             }
 
             _mesh = TriangleMesh.Create(points, triangles);
-            return body.CreateMeshShape(BuildDef(), _mesh, scale);
+            return body.CreateMeshShape(BuildDef(), _mesh);
         }
 
         internal override void ReleaseGeometry()

@@ -11,10 +11,14 @@ namespace Box3d.Hybrid
         [SerializeField, Min(0f), Tooltip("Sphere radius in local units.")]
         private float Radius = 0.5f;
 
-        protected override Shape CreateShape(Body body, float3 scale)
+        protected override Shape CreateShape(Body body, float3 localPosition, quaternion localRotation, float3 scale)
         {
             float scaledRadius = Radius * math.cmax(math.abs(scale));
-            return body.CreateSphereShape(BuildDef(), new Sphere { Center = LocalCenter * scale, Radius = scaledRadius });
+            return body.CreateSphereShape(BuildDef(), new Sphere
+            {
+                Center = ShapeCenter(localPosition, localRotation, scale),
+                Radius = scaledRadius,
+            });
         }
 
         private void OnDrawGizmosSelected()

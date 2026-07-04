@@ -89,5 +89,12 @@ namespace Box3d
         {
             return UnsafeBindings.b3MakeOffsetBoxHull(halfX, halfY, halfZ, offset);
         }
+
+        /// <summary>A box hull with the given half-extents, positioned and rotated by
+        /// <paramref name="transform"/>.</summary>
+        public static BoxHull CreateTransformed(float halfX, float halfY, float halfZ, B3Transform transform)
+        {
+            return UnsafeBindings.b3MakeTransformedBoxHull(halfX, halfY, halfZ, transform);
+        }
     }
 }

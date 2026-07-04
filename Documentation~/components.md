@@ -1,10 +1,10 @@
 # Component layer (experimental)
 
 > **Experimental (0.2.x).** A MonoBehaviour layer that lets you author physics in the Inspector
-> instead of writing C#, mirroring Unity's Rigidbody/Collider model. It covers bodies and all five
-> shape types (sphere, box, capsule, hull, mesh); compound (child) shapes and joints are not wired
-> up yet. The pointer-level API in the rest of these docs remains the full-featured path. Lives in a
-> separate `Box3d.Hybrid` assembly.
+> instead of writing C#, mirroring Unity's Rigidbody/Collider model. It covers bodies, all five
+> shape types (sphere, box, capsule, hull, mesh), compound (child) shapes, and auto-static
+> colliders; joint components are not wired up yet. The pointer-level API in the rest of these docs
+> remains the full-featured path. Lives in a separate `Box3d.Hybrid` assembly.
 
 If you know Unity's physics components, you already know these:
 
@@ -86,10 +86,16 @@ layers that layer is allowed to in the matrix. Set the layer as you would for a 
 collider. (The layer is read when the shape is created; changing it at runtime needs the body
 recreated.)
 
+## Compound shapes & static colliders
+
+Like Unity: a body gathers shape components from its own GameObject **and its children** (stopping
+at any nested `Box3dBody`), so several shapes under one body form a single compound body — each
+child shape is placed at its Transform relative to the body. And a shape with **no** `Box3dBody` on
+itself or an ancestor gets its own static body automatically (a collider without a rigidbody is
+static geometry).
+
 ## Current limits
 
-- Shapes are read from the body's own GameObject only — child-collider compounds aren't gathered yet.
-- A shape with no body does nothing (auto-static bodies are planned).
 - Mesh shapes are static-only (use a hull shape for dynamic concave-ish objects). Hull and mesh
   shapes read mesh vertices at runtime, so the mesh asset must have **Read/Write enabled**.
 - No joint components yet — use the code API for joints.

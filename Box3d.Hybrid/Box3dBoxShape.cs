@@ -10,11 +10,15 @@ namespace Box3d.Hybrid
         [SerializeField, Tooltip("Full box size in local units (like Unity's BoxCollider.size).")]
         private Vector3 Size = Vector3.one;
 
-        protected override Shape CreateShape(Body body, float3 scale)
+        protected override Shape CreateShape(Body body, float3 localPosition, quaternion localRotation, float3 scale)
         {
             float3 halfExtents = (float3)Size * 0.5f * math.abs(scale);
-            float3 center = LocalCenter * scale;
-            BoxHull hull = BoxHull.CreateOffset(halfExtents.x, halfExtents.y, halfExtents.z, center);
+            var frame = new B3Transform
+            {
+                Position = ShapeCenter(localPosition, localRotation, scale),
+                Rotation = localRotation,
+            };
+            BoxHull hull = BoxHull.CreateTransformed(halfExtents.x, halfExtents.y, halfExtents.z, frame);
             return body.CreateHullShape(BuildDef(), in hull);
         }
 

@@ -25,9 +25,9 @@ namespace Box3d.Hybrid
         [SerializeField, Tooltip("Axis the capsule runs along.")]
         private Box3dAxis Direction = Box3dAxis.Y;
 
-        protected override Shape CreateShape(Body body, float3 scale)
+        protected override Shape CreateShape(Body body, float3 localPosition, quaternion localRotation, float3 scale)
         {
-            Resolve(scale, out float3 center1, out float3 center2, out float radius);
+            Resolve(localPosition, localRotation, scale, out float3 center1, out float3 center2, out float radius);
             return body.CreateCapsuleShape(BuildDef(), new Capsule
             {
                 Center1 = center1,
@@ -36,8 +36,10 @@ namespace Box3d.Hybrid
             });
         }
 
-        // The two hemisphere centers and radius after baking scale — shared by the shape and gizmo.
-        private void Resolve(float3 scale, out float3 center1, out float3 center2, out float radius)
+        // The two hemisphere centers and radius after baking the local transform and scale —
+        // shared by the shape and gizmo.
+        private void Resolve(float3 localPosition, quaternion localRotation, float3 scale,
+            out float3 center1, out float3 center2, out float radius)
         {
             float3 axis = AxisVector(Direction);
             float3 absScale = math.abs(scale);
@@ -46,8 +48,8 @@ namespace Box3d.Hybrid
             radius = Radius * radialScale;
 
             float halfSegment = math.max(0f, Height * 0.5f * axisScale - radius);
-            float3 center = LocalCenter * scale;
-            float3 offset = axis * halfSegment;
+            float3 center = ShapeCenter(localPosition, localRotation, scale);
+            float3 offset = math.mul(localRotation, axis) * halfSegment;
             center1 = center - offset;
             center2 = center + offset;
         }
@@ -55,7 +57,8 @@ namespace Box3d.Hybrid
         private void OnDrawGizmosSelected()
         {
             SetGizmoFrame();
-            Resolve(transform.lossyScale, out float3 c1, out float3 c2, out float radius);
+            // Gizmo draws in the shape's own frame, so local transform is identity here.
+            Resolve(float3.zero, quaternion.identity, transform.lossyScale, out float3 c1, out float3 c2, out float radius);
 
             float3 axis = AxisVector(Direction);
             float3 side = math.abs(axis.y) < 0.99f

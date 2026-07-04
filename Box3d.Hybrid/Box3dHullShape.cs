@@ -21,7 +21,7 @@ namespace Box3d.Hybrid
             Mesh = mesh;
         }
 
-        protected override Shape CreateShape(Body body, float3 scale)
+        protected override Shape CreateShape(Body body, float3 localPosition, quaternion localRotation, float3 scale)
         {
             if (!Mesh)
             {
@@ -40,7 +40,7 @@ namespace Box3d.Hybrid
             var points = new float3[vertices.Length];
             for (int i = 0; i < vertices.Length; i++)
             {
-                points[i] = ((float3)vertices[i] + LocalCenter) * scale;
+                points[i] = localPosition + math.mul(localRotation, ((float3)vertices[i] + LocalCenter) * scale);
             }
 
             Hull hull = Hull.Create(points, MaxVertices);
