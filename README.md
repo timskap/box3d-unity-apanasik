@@ -58,7 +58,28 @@ crowds are its home turf; one giant coupled constraint network is its least favo
 
 ## Installation
 
-Install via the Unity Package Manager using the git URL (an OpenUPM listing will follow later):
+### OpenUPM (recommended)
+
+[![openupm](https://img.shields.io/npm/v/com.suvitruf.box3d?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.suvitruf.box3d/)
+
+Via the [openupm-cli](https://openupm.com/):
+
+```
+openupm add com.suvitruf.box3d
+```
+
+Or add the scoped registry manually — **Edit → Project Settings → Package Manager → Scoped
+Registries**, add:
+
+- **Name**: `package.openupm.com`
+- **URL**: `https://package.openupm.com`
+- **Scope(s)**: `com.suvitruf`
+
+then install **box3d for Unity** from **Window → Package Manager → My Registries**.
+
+### Git URL
+
+Alternatively, in the Package Manager choose **Add package from git URL** and paste:
 
 ```
 https://github.com/Suvitruf/box3d-unity.git
