@@ -157,6 +157,89 @@ public class HybridSpawner : MonoBehaviour
         }
     }
 
+    // A sphere hung from a fixed world point by a distance-joint spring, started stretched so it
+    // bobs. Exercises the distance joint + spring + world connection.
+    private void SpawnSpring()
+    {
+        for (int i = 0; i < SpawnCount; i++)
+        {
+            Vector3 top = new Vector3(Random.Range(-3f, 3f), 11f, Random.Range(-3f, 3f));
+
+            GameObject bob = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            bob.SetActive(false);
+            Destroy(bob.GetComponent<Collider>());
+            bob.transform.position = top - new Vector3(0f, 3f, 0f); // hangs below, stretched
+            if (BaseMaterial)
+            {
+                bob.GetComponent<MeshRenderer>().material =
+                    new Material(BaseMaterial) { color = Color.HSVToRGB(Random.value, 0.55f, 1f) };
+            }
+
+            bob.AddComponent<Box3dSphereShape>();
+            bob.AddComponent<Box3dBody>();
+
+            Box3dDistanceJoint spring = bob.AddComponent<Box3dDistanceJoint>();
+            spring.SetConnectedBody(null);        // hang from the world
+            spring.SetConnectedAnchor(top);       // world anchor point
+            spring.SetLength(1.5f);               // shorter than the 3 m drop → springs up
+            spring.SetSpring(hertz: 3f, dampingRatio: 0.3f);
+
+            bob.SetActive(true);
+            _spawned.Add(bob);
+        }
+    }
+
+    // A ball-joint chain, laid out as a horizontal arc curving into z. Because it starts non-planar,
+    // gravity makes it swing AND twist in 3D through the free ball joints — visibly floppier than
+    // the single-plane hinge chain (which couldn't follow this shape).
+    private void SpawnBallChain()
+    {
+        const int links = 7;
+        const float length = 0.6f;
+        const float thickness = 0.15f;
+
+        Vector3 anchor = new Vector3(Random.Range(-3f, 3f), 10f, Random.Range(-3f, 3f));
+        var linkObjects = new List<GameObject>();
+        Box3dBody previous = null;
+
+        Vector3 cursor = anchor;
+        Quaternion dir = Quaternion.identity;
+        Quaternion turn = Quaternion.AngleAxis(22f, Vector3.up); // curve the chain into z
+
+        for (int i = 0; i < links; i++)
+        {
+            Vector3 forward = dir * Vector3.right;
+
+            GameObject link = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            link.SetActive(false);
+            Destroy(link.GetComponent<Collider>());
+            link.transform.SetPositionAndRotation(cursor + forward * (length * 0.5f), dir);
+            link.transform.localScale = new Vector3(length, thickness, thickness);
+            if (BaseMaterial)
+            {
+                link.GetComponent<MeshRenderer>().material =
+                    new Material(BaseMaterial) { color = Color.HSVToRGB(Random.value, 0.55f, 1f) };
+            }
+
+            link.AddComponent<Box3dBoxShape>();
+            Box3dBody body = link.AddComponent<Box3dBody>();
+            Box3dBallJoint ball = link.AddComponent<Box3dBallJoint>();
+            ball.SetConnectedBody(previous);
+            ball.SetAnchor(new Vector3(-0.5f, 0f, 0f));
+
+            linkObjects.Add(link);
+            previous = body;
+            cursor += forward * length;
+            dir = turn * dir;
+        }
+
+        foreach (GameObject link in linkObjects)
+        {
+            link.SetActive(true);
+            _spawned.Add(link);
+        }
+    }
+
     private void Clear()
     {
         foreach (GameObject go in _spawned)
@@ -168,7 +251,7 @@ public class HybridSpawner : MonoBehaviour
 
     private void OnGUI()
     {
-        GUILayout.BeginArea(new Rect(10f, 10f, 220f, 350f), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(10f, 10f, 220f, 400f), GUI.skin.box);
         GUILayout.Label("<b>Component layer test</b>", new GUIStyle(GUI.skin.label) { richText = true });
 
         GUILayout.Label($"Count per press: {SpawnCount}");
@@ -184,6 +267,8 @@ public class HybridSpawner : MonoBehaviour
         if (GUILayout.Button($"Spawn {SpawnCount} hulls")) Spawn(ShapeKind.Hull);
         if (GUILayout.Button($"Spawn {SpawnCount} compounds")) SpawnCompound();
         if (GUILayout.Button("Spawn hinge chain")) SpawnChain();
+        if (GUILayout.Button("Spawn ball chain")) SpawnBallChain();
+        if (GUILayout.Button("Spawn spring")) SpawnSpring();
         if (GUILayout.Button("Clear")) Clear();
 
         GUILayout.FlexibleSpace();
