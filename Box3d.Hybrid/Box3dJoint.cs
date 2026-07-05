@@ -87,12 +87,30 @@ namespace Box3d.Hybrid
                 : new B3Transform { Position = anchor, Rotation = frameWorld }; // world anchor: identity body
         }
 
-        /// <summary>The frame rotation (in this body's local space) that maps box3d's frame z-axis
-        /// onto <paramref name="worldAxis"/> — for axis-based joints (hinge z, etc.).</summary>
-        protected quaternion LocalAxisFrame(Vector3 worldAxis)
+        /// <summary>Frame rotation mapping box3d's frame z-axis onto <paramref name="worldAxis"/>
+        /// (hinge, spherical cone, parallel).</summary>
+        protected quaternion LocalAxisFrame(Vector3 worldAxis) => AxisFrame(Vector3.forward, worldAxis);
+
+        /// <summary>Frame rotation mapping box3d's frame x-axis onto <paramref name="worldAxis"/>
+        /// (prismatic slide axis).</summary>
+        protected quaternion LocalSlideFrame(Vector3 worldAxis) => AxisFrame(Vector3.right, worldAxis);
+
+        private quaternion AxisFrame(Vector3 fromLocal, Vector3 worldAxis)
         {
             Vector3 localAxis = transform.InverseTransformDirection(worldAxis);
-            return Quaternion.FromToRotation(Vector3.forward, localAxis.sqrMagnitude > 1e-8f ? localAxis.normalized : Vector3.forward);
+            return Quaternion.FromToRotation(fromLocal, localAxis.sqrMagnitude > 1e-8f ? localAxis.normalized : fromLocal);
+        }
+
+        /// <summary>The connected body (null = world), for joints that place two distinct anchors.</summary>
+        protected Box3dBody Connected => ConnectedBody;
+
+        /// <summary>Whether connected bodies are allowed to collide.</summary>
+        protected bool Collides => CollideConnected;
+
+        /// <summary>A position-only local frame at a world point, on a body's Transform.</summary>
+        protected static B3Transform PointFrame(Transform body, Vector3 worldPoint)
+        {
+            return new B3Transform { Position = body.InverseTransformPoint(worldPoint), Rotation = quaternion.identity };
         }
     }
 }

@@ -3,8 +3,8 @@
 > **Experimental (0.2.x).** A MonoBehaviour layer that lets you author physics in the Inspector
 > instead of writing C#, mirroring Unity's Rigidbody/Collider model. It covers bodies, all five
 > shape types (sphere, box, capsule, hull, mesh), compound (child) shapes, and auto-static
-> colliders, and two joint components (hinge, fixed) so far. The pointer-level API in the rest of
-> these docs remains the full-featured path. Lives in a separate `Box3d.Hybrid` assembly.
+> colliders, and seven joint components. The pointer-level API in the rest of these docs remains
+> the full-featured path. Lives in a separate `Box3d.Hybrid` assembly.
 
 If you know Unity's physics components, you already know these:
 
@@ -102,18 +102,23 @@ is the local pivot point.
 
 | Component | Unity analog | Notes |
 |---|---|---|
-| `Box3dHingeJoint` | `HingeJoint` | Rotates around **Axis** through the anchor; optional angle limits + motor. |
-| `Box3dFixedJoint` | `FixedJoint` | Rigidly welds the two bodies at their current pose; optional spring softness. |
+| `Box3dHingeJoint` | `HingeJoint` | Rotates around **Axis**; optional angle limits + motor. |
+| `Box3dBallJoint` | `CharacterJoint` | Ball-and-socket; optional cone (swing) + twist limits. |
+| `Box3dSliderJoint` | `ConfigurableJoint` (1 axis) | Slides along **Axis**; optional limits + motor. |
+| `Box3dDistanceJoint` | `SpringJoint` | Holds a fixed distance between two anchors; optional spring. |
+| `Box3dFixedJoint` | `FixedJoint` | Rigidly welds the bodies at their current pose; optional spring. |
+| `Box3dParallelJoint` | — | Spring keeps an axis aligned (stay upright). |
+| `Box3dFilterJoint` | — | No constraint; disables collision between the two bodies. |
 
 Frames are computed so the joint is satisfied at the pose you built it in — creating it never snaps
-the bodies. The other seven box3d joint types (distance, spherical, prismatic, wheel, …) are
-available through the code API and will get components later.
+the bodies. The remaining two box3d joint types (motor, wheel) are code-API only: motor is for
+programmatic dragging, and wheel is a vehicle joint the Vehicle sample demonstrates.
 
 ## Current limits
 
 - Mesh shapes are static-only (use a hull shape for dynamic concave-ish objects). Hull and mesh
   shapes read mesh vertices at runtime, so the mesh asset must have **Read/Write enabled**.
-- Only hinge and fixed joints have components so far; the rest are code-API only.
+- Seven of the nine joint types have components; motor and wheel remain code-API.
 
 For anything beyond this, drop to the code API ([getting started](getting-started.md)) — the
 components and the API share the same world and interoperate (`Box3dBody.Body`, `Box3dWorld.World`).
