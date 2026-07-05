@@ -31,6 +31,22 @@ figures as relative, not absolute; run the sample scenes on your own hardware.
 | **PhysX** | **0.54 ms** | 0.67 ms |
 | Box3d, 16 workers | 0.71 ms | 0.82 ms |
 
+**Real-scene destruction — a town of ~10,000 bodies** (running-bond brick buildings, scattered
+props, and terrain, smashed by a scripted sequence of wrecking balls — a mixed, realistic workload):
+
+![Box3d destruction demo](https://projects.cdn.aapanasik.com/box3d-unity/destructions-box3d.gif)
+
+| | avg | median | p95 | p99 | max |
+|---|---|---|---|---|---|
+| PhysX | 10.94 ms | 10.48 | 13.89 | 14.60 | 16.10 |
+| **Box3d, 16 workers** | **7.67 ms** | **7.53** | **9.81** | **10.34** | **10.52** |
+
+Identical body count (9,973) and an identical seeded town + scripted shots on both engines, so it is
+directly reproducible. Box3d is ~**1.4× faster across the entire distribution**, with lower variance
+— and its *slowest* step (10.5 ms) is about equal to PhysX's *median* step, so frame times stay
+tighter through the collapses. At a 50 Hz fixed step (20 ms budget) Box3d uses ~38% of the budget to
+PhysX's ~55%, leaving far more headroom for more bodies.
+
 ## The pattern: islands decide the speedup
 
 Box3d parallelizes across simulation **islands** (groups of bodies connected by contacts/joints).
