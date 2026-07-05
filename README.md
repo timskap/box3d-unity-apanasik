@@ -50,8 +50,13 @@ box3d running 4 sub-steps vs PhysX defaults — details and CSVs in the docs):
 | Scene | PhysX | Box3d (16 workers) | |
 |---|---|---|---|
 | 10,000 spheres raining | 6.70 ms | **1.84 ms** | ~3.6× faster |
+| Destroyed city, ~10,000 bodies (buildings + props) | 10.94 ms | **7.67 ms** | ~1.4× faster |
 | 64 piles, 1,024 bodies (sleep off) | 1.15 ms | **0.54 ms** | ~2.1× faster |
 | Joint-grid cloth, 930 joints | **0.54 ms** | 0.71 ms | PhysX ahead on single-island loads |
+
+The city scene is a mixed real-world load — a town of running-bond brick buildings and props on
+terrain, smashed by a scripted sequence of wrecking balls (identical seeded content on both engines).
+There, Box3d's *slowest* step matched PhysX's *median* — tighter frame times through the collapses.
 
 Box3d's threading scales with the number of independent simulation islands — piles, debris, and
 crowds are its home turf; one giant coupled constraint network is its least favorable shape.
