@@ -12,8 +12,9 @@
   (box3d bodies are unscaled), so joints on a scaled body anchor in the right place.
 
 ### Known issues
-- The wheel joint's spin motor does not drive (its target stays at the creation value); use the code
-  API for motorized wheels for now.
+- The wheel joint's spin motor applies torque but doesn't spin the wheel — its spin DOF is held by the
+  joint's angular constraint (cause not yet isolated). Drive motorized wheels via the low-level code
+  API for now (see the Vehicle sample).
 
 ## [0.3.0] — 2026-07-05
 
