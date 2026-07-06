@@ -25,7 +25,9 @@ This project was inspired by, and owes its architecture to, two projects:
 - **World & bodies** — static/kinematic/dynamic bodies, full body API (velocities, forces, mass,
   damping, per-axis motion locks, bullets/CCD, gravity scale).
 - **Shapes** — sphere, capsule, convex hull (with cylinder/cone/rock/point-cloud builders),
-  triangle mesh, height field, compound. Clear, documented geometry lifetime rules.
+  triangle mesh, height field, compound. Clear, documented geometry lifetime rules. Concave objects:
+  triangle meshes for static geometry, compounds of convex parts for dynamic bodies
+  ([details](Documentation~/shapes-and-geometry.md#concave-objects)).
 - **Joints** — all nine box3d joints: distance, motor, filter, parallel, prismatic, revolute,
   spherical (cone/twist limits), weld, wheel (suspension + steering + drive) — each with its full
   spring/limit/motor accessor surface.

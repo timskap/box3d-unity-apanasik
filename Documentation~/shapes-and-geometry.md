@@ -72,6 +72,23 @@ body.CreateCompoundShape(ShapeDef.Default, compound);
 The `Compound` itself is referenced by its shapes (destroy shapes first), but the *input* hulls
 are copied during `Create`.
 
+## Concave objects
+
+Concavity splits by **static vs. dynamic**, as in every rigid-body engine:
+
+- **Static concave geometry works directly.** Use a [triangle mesh](#triangle-meshes-level-geometry)
+  (or [height field](#height-fields-terrain)) for level geometry, terrain, or any arbitrary concave
+  surface. Mesh shapes only generate contacts against *static* bodies — so this is for the world, not
+  for something you push around.
+- **Dynamic (moving) concave objects are built from convex pieces.** A moving body collides using
+  convex shapes only (sphere / capsule / box / hull), so a moving concave object is a **compound of
+  convex parts** — either a baked [`Compound`](#compounds) in the code API, or, in the
+  [component layer](components.md), several shape components under one `Box3dBody` (they merge into
+  one compound collider, mirroring Unity's own multi-collider Rigidbody).
+
+There is no built-in convex decomposition: author the convex pieces yourself, or precompute them with
+a tool such as [V-HACD](https://github.com/kmammou/v-hacd) and add one hull per piece.
+
 ## Materials, filters, and flags on ShapeDef
 
 - `BaseMaterial` — friction, restitution, rolling resistance, `TangentVelocity` (conveyor belts!),
