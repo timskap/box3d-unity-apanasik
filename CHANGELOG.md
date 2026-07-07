@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.2] — 2026-07-07
+
+### Added
+- macOS (universal, minimum macOS 11.0) and iOS (arm64 static, minimum iOS 13.0) native binaries —
+  the package now ships all six platforms.
+
+### Fixed
+- Android native library is now 16 KB page-aligned, as required by Android 15 and Google Play.
+
+### Documentation
+- Added a "Concave objects" section (static triangle meshes vs. dynamic compounds of convex shapes).
+
 ## [0.3.1] — 2026-07-06
 
 ### Added
