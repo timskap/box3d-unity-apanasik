@@ -59,6 +59,58 @@ foreach (ContactHitEvent hit in contacts.Hit)
 
 Tune the world-wide threshold with `WorldDef.HitEventThreshold`.
 
+## Contact manifolds (querying contacts)
+
+Hit events are cheap fire-and-forget notifications. When you need the *full* detail of what a body
+or shape is currently touching — every contact point, the normal, penetration depth, and solver
+impulses — poll for it. No opt-in is needed (unlike the event stream):
+
+```csharp
+foreach (ContactData contact in body.GetContacts())
+{
+    // AnchorA is relative to shape A's body's center of mass — and box3d, not you, chooses which
+    // shape is A (it may be the OTHER body). Resolve A's body to turn an anchor into a world point:
+    var bodyA = new Body { Id = contact.ShapeA.GetBody() };
+    float3 comA = bodyA.GetWorldCenterOfMass();
+    foreach (Manifold m in contact.Manifolds)
+    {
+        for (int i = 0; i < m.PointCount; i++)
+        {
+            ManifoldPoint p = m[i];
+            float3 worldPoint = comA + p.AnchorA;
+            if (p.TotalNormalImpulse > hardHitThreshold && !p.Persisted)
+                SpawnImpactEffect(worldPoint, m.Normal);   // a NEW hard contact this step
+        }
+    }
+}
+```
+
+Available on `Contact.GetData()` (a single tracked contact), `Body.GetContacts()`, and
+`Shape.GetContacts()`; `GetContactCapacity()` gives an upper bound if you want to pre-size.
+`Body.GetContacts()` returns only *touching* contacts; `Shape.GetContacts()` can also include
+*speculative* points that are near but separated (positive `Separation`) — filter on
+`Separation <= 0` if you only want ones in contact.
+
+What each field is good for:
+
+| Field | Use |
+|---|---|
+| `Manifold.Normal` | surface orientation (world, points A → B) — orient decals/sparks |
+| `ManifoldPoint.AnchorA` / `AnchorB` | contact location relative to shape A's / shape B's body center of mass; world point = `contact.ShapeA.GetBody()`'s COM + `AnchorA` (box3d picks the A/B order) |
+| `TotalNormalImpulse` | how hard the point was pushed — impact strength / damage |
+| `NormalVelocity` | pre-solve approach speed (negative = closing) |
+| `Separation` | penetration depth (negative = overlapping) |
+| `TriangleIndex` | which triangle, when a shape is a mesh/height field — per-surface material |
+| `Persisted` | `false` = a fresh impact this step; `true` = ongoing resting contact |
+| `FeatureId` | stable id to track one point across steps |
+
+**Lifetime.** In the raw C API, `b3ContactData` reaches its manifolds through a pointer into internal
+engine memory that *"may become invalid — do not store this pointer."* This wrapper copies the
+manifold data into managed memory the moment you call the accessor, so the `ContactData` you get back
+is a safe, self-contained snapshot you can keep. It reflects the state at the **last `World.Step`** —
+call again after stepping for fresh values. (Each call allocates the returned arrays, so query when
+you need the detail rather than every frame for every body.)
+
 ## When you actually need callbacks
 
 Contact *modification* (disabling specific contacts, custom filtering, custom friction mixing)

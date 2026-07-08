@@ -65,6 +65,35 @@ namespace Box3d
             }
         }
 
+        /// <summary>Snapshots every contact currently on this body — the touching shapes and their
+        /// manifold(s) (points, normal, separation, impulses), as of the last <c>World.Step</c>.
+        ///
+        /// <para>Each native b3ContactData reaches its manifolds through internal engine memory that
+        /// may become invalid — that pointer must never be stored. This copies the manifold data into
+        /// managed memory here, so every returned <see cref="ContactData"/> is a safe snapshot.
+        /// Contacts only carry manifold data once the shapes actually touch.</para></summary>
+        public unsafe ContactData[] GetContacts()
+        {
+            int capacity = UnsafeBindings.b3Body_GetContactCapacity(Id);
+            if (capacity == 0) return Array.Empty<ContactData>();
+
+            Span<b3ContactData> buffer = capacity <= 32
+                ? stackalloc b3ContactData[capacity]
+                : new b3ContactData[capacity];
+            int count;
+            fixed (b3ContactData* p = buffer)
+            {
+                count = UnsafeBindings.b3Body_GetContactData(Id, p, capacity);
+            }
+
+            var result = new ContactData[count];
+            for (int i = 0; i < count; i++)
+            {
+                result[i] = ContactData.FromNative(buffer[i]);
+            }
+            return result;
+        }
+
         public unsafe Shape CreateSphereShape(in ShapeDef def, in Sphere sphere)
         {
             ShapeDef localDef = def;

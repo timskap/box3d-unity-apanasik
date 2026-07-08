@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.0] — 2026-07-08
+
+### Added
+- Contact manifold data — query live contacts via `Body.GetContacts()`, `Shape.GetContacts()` and
+  `Contact.GetData()`: contact points, world normal, separation, and solver impulses
+  (`TotalNormalImpulse` for impact strength, `NormalVelocity`, per-triangle index, and a
+  new-vs-resting `Persisted` flag). New `ContactData` / `Manifold` / `ManifoldPoint` types; the
+  transient native manifold pointer is copied into managed memory so results are safe to keep.
+
 ## [0.3.2] — 2026-07-07
 
 ### Added
