@@ -56,12 +56,14 @@ namespace Box3d.Hybrid
 
         /// <summary>Configures the wheel for runtime assembly (before the joint is created in Start):
         /// connects it to the chassis, sets the axle direction, and enables drive/steering.</summary>
-        public void Configure(Box3dBody chassis, Vector3 spinAxisLocal, bool drive, bool steerable)
+        public void Configure(Box3dBody chassis, Vector3 spinAxisLocal, bool drive, bool steerable,
+            float maxSpinTorque = 0f)
         {
             SetConnectedBody(chassis);
             SpinAxis = spinAxisLocal;
             DriveWheel = drive;
             Steerable = steerable;
+            if (maxSpinTorque > 0f) MaxSpinTorque = maxSpinTorque;
         }
 
         protected override Joint CreateJoint(BodyId bodyA, BodyId bodyB)

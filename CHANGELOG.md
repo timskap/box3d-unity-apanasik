@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.2] — 2026-07-10
+
+### Fixed
+- Component joints now suppress collision between overlapping connected bodies. box3d applies
+  `CollideConnected` only when *creating* a contact, not one that already exists — so with the
+  component layer's deferred activation a stale wheel-inside-chassis contact could persist and crush
+  the bodies apart with huge force, pinning driven wheels. Joints now clear it on creation. This makes
+  motor-driven component vehicles work with normal (overlapping) wheel placement.
+
 ## [0.4.1] — 2026-07-09
 
 ### Added

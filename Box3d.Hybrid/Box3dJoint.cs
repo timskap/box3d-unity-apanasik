@@ -49,6 +49,17 @@ namespace Box3d.Hybrid
             BodyId bodyA = ConnectedBody ? ConnectedBody.Body.Id : World.WorldAnchor.Id;
 
             _joint = CreateJoint(bodyA, bodyB);
+
+            // box3d sets the collide-connected flag at joint creation but does NOT clear a contact
+            // that already exists between the two bodies. If a world step runs between the bodies
+            // spawning and this joint being created, an overlap contact (e.g. a wheel inside the
+            // chassis) gets created and then persists — crushing the bodies apart with huge force.
+            // Toggling collide-connected forces box3d to destroy that stale contact.
+            if (!CollideConnected && _joint.IsValid)
+            {
+                _joint.SetCollideConnected(true);
+                _joint.SetCollideConnected(false);
+            }
         }
 
         private void OnDestroy()
