@@ -44,6 +44,20 @@ The headline: prove your simulation is reproducible.
 Wireframes render in the **Scene view** always, and in the **Game view only with Gizmos** enabled
 (same caveat as debug draw).
 
+### Visual replay (real objects)
+
+- **`Box3dVisualReplayer`** — plays the recording back on the scene's **actual GameObjects** (meshes,
+  materials, everything) instead of wireframes. It pauses live physics and drives each recorded body
+  onto its scene object, so you watch the recorded run with full visuals and the same scrub timeline.
+
+  Use it in the **same scene the recording was made in**. Mapping is by **body name**: `Box3dBody`
+  names its body after the GameObject, so give bodies **unique names** for exact playback (same-named
+  bodies are paired best-effort). Bodies with no scene object (e.g. the joint world anchor) are simply
+  skipped. It logs how many replay bodies it mapped.
+
+  Pick `Box3dReplayer` (wireframe) when you don't have the original scene; pick `Box3dVisualReplayer`
+  when you do and want it to look real.
+
 ## Doing it from code (raw API)
 
 The components wrap a small low-level API you can drive directly — useful for raw-API worlds or

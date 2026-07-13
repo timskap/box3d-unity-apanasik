@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.1] — 2026-07-13
+
+### Added
+- **`Box3dVisualReplayer`** — plays a recording back on the scene's **real GameObjects** (meshes and
+  materials), not wireframes. It pauses live physics and drives each recorded body onto its scene
+  object, mapped by **body name**, with the same scrub timeline as `Box3dReplayer`. Use it in the
+  scene the recording was made in; unmatched bodies (e.g. the joint world anchor) are skipped.
+- **`Body.SetName()` / `GetName()`** — and `Box3dBody` now names its native body after the GameObject,
+  so names appear in recordings/debug output and drive the visual replayer's mapping.
+
 ## [0.6.0] — 2026-07-12
 
 ### Added — determinism & replay

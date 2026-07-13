@@ -43,6 +43,10 @@ namespace Box3d.Hybrid
         /// <summary>The underlying Box3d world (valid after this component is enabled).</summary>
         public World World => _world;
 
+        /// <summary>When true, the world stops stepping (bodies stay put). The visual replayer sets this
+        /// so live physics doesn't fight the replayed transforms.</summary>
+        public bool Paused { get; set; }
+
         /// <summary>A shared static body at the origin, used as the fixed endpoint for joints whose
         /// connected body is null (like Unity's null connectedBody = attach to the world).</summary>
         public Body WorldAnchor
@@ -107,7 +111,7 @@ namespace Box3d.Hybrid
 
         private void FixedUpdate()
         {
-            if (!_world.IsValid) return;
+            if (Paused || !_world.IsValid) return;
 
             float deltaTime = Time.fixedDeltaTime;
             for (int i = 0; i < _kinematicBodies.Count; i++)

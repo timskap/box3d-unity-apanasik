@@ -9,7 +9,7 @@ namespace Box3d.Hybrid
     /// a replay diverges from the original (non-determinism). Runs its own replay world; it does not need
     /// a <see cref="Box3dWorld"/> in the scene.</summary>
     [AddComponentMenu("Box3d/Box3d Replayer")]
-    public class Box3dReplayer : MonoBehaviour
+    public class Box3dReplayer : MonoBehaviour, IReplayTimeline
     {
         [SerializeField, Tooltip("A .rec file to load on Start (empty = load one at runtime via LoadBytes).")]
         private string LoadPath = "";

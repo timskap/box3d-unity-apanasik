@@ -104,6 +104,7 @@ namespace Box3d.Hybrid
             _handle = GCHandle.Alloc(this);
             def.UserData = GCHandle.ToIntPtr(_handle);
             _body = _world.World.CreateBody(def);
+            _body.SetName(gameObject.name); // recorded — lets the visual replayer map replay bodies to scene objects
 
             var shapes = new System.Collections.Generic.List<Box3dShape>();
             GatherShapes(transform, shapes, isRoot: true);
