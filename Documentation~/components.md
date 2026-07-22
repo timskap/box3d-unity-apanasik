@@ -20,6 +20,7 @@ If you know Unity's physics components, you already know these:
 | `Box3DMeshShape` | non-convex `MeshCollider` | Triangle mesh from a mesh asset; **static bodies only**. |
 | `Box3DWind` | `WindZone` (visual-only in Unity) | Pushes dynamic bodies inside a box volume; optional gusts. |
 | `Box3DExplosion` | — | Radial impulse burst with radius + falloff. |
+| `Box3DRope` | — | Source 2-style cable: live editor preview, bake static or simulate in game. |
 
 ## Quick start
 
@@ -145,6 +146,23 @@ Scene-authorable force fields — select one to see its gizmos:
   spawned prefabs. Gizmos show both radii and the blast rays.
 
 Both live under **Add Component → Box3D → Forces** and **GameObject → Box3D**.
+
+## Rope
+
+`Box3DRope` is a Source 2-style cable (**GameObject → Box3D → Rope**). Put it on the start object,
+point **End Point** at the far end (or drag the Scene-view handle when it's empty), set
+**Segments** / **Slack** / **Radius** — the Scene view always shows the settled hang while you
+edit, and **▶ Simulate in Editor** animates it live. Then choose:
+
+- **Dynamic** (default): at runtime the rope becomes capsule segment bodies linked by ball joints.
+  Ends attach to any `Box3DBody` found at the endpoints — the rope swings with them and tugs on
+  them — otherwise they pin to the world. The rope collides with the scene.
+- **Baked** — press **Bake Current Shape**: the curve freezes (no simulation in game) with
+  optional static capsule collision, cheap enough to scatter everywhere like Source 2's static
+  cables. A rope set to Baked without ever baking settles once at startup. **Make Dynamic** reverts.
+
+Rendering goes through the rope's LineRenderer (style its material/width freely); the simulation
+drives its points every frame.
 
 ## Tooling components
 

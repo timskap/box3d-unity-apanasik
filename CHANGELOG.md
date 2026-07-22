@@ -30,6 +30,12 @@
   as a zone + arrow grid that tracks live gust strength; **`Box3DExplosion`** — a radial impulse
   burst (native `World.Explode`) with radius/falloff gizmos, an Inspector **Explode** button and
   **Explode On Enable** for spawned prefabs.
+- **`Box3DRope`** — Source 2-style cables (`Box3D/Rope`, GameObject → Box3D → Rope): the Scene view
+  shows the settled hang live while editing (verlet preview under the world's gravity, draggable
+  far-end handle, an editor **Simulate** toggle), then **Bake** freezes the curve into a static
+  cable with optional static collision — or leave it **Dynamic** and it builds capsule segments +
+  ball joints at runtime, attaching to any `Box3DBody` at its endpoints. Renders through a
+  LineRenderer.
 
 ### Fixed
 - **Inspector edits now apply live during play** across the component layer: `Box3DWorld` gravity,
