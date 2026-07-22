@@ -115,7 +115,17 @@ namespace Box3D.Hybrid
         private void BuildDynamic()
         {
             _world = Box3DWorld.Instance;
-            Vector3[] nodes = ComputeSettledPoints();
+
+            // Spawn taut along the straight line between the ends. The slack lives in the joint
+            // rest lengths, so the rope sags into place under gravity and drapes onto whatever it
+            // meets — a pre-settled spawn would thread segments through scene geometry, because
+            // the verlet preview can't see Box3D shapes.
+            var nodes = new Vector3[Segments + 1];
+            for (int i = 0; i <= Segments; i++)
+            {
+                nodes[i] = Vector3.Lerp(StartWorld, EndWorld, (float)i / Segments);
+            }
+
             float restLength = Vector3.Distance(StartWorld, EndWorld) * (1f + Slack) / Segments;
             _halfSegment = restLength * 0.5f;
 
@@ -272,9 +282,9 @@ namespace Box3D.Hybrid
 
         // --- shared with the editor (preview, bake) ---
 
-        /// <summary>The rope's settled hang: a verlet relaxation between the current endpoints
-        /// under the world's gravity. Used for the editor preview, for baking, and to spawn
-        /// dynamic segments pre-settled (no drop-and-bounce on load).</summary>
+        /// <summary>The rope's free-space hang: a verlet relaxation between the current endpoints
+        /// under the world's gravity, ignoring scene collision. Used for the editor preview and
+        /// for baking — dynamic ropes spawn taut instead and drape via real physics.</summary>
         internal Vector3[] ComputeSettledPoints()
         {
             var points = new Vector3[Segments + 1];
