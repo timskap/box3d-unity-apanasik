@@ -101,6 +101,16 @@ namespace Box3D.Hybrid
             _world = World.Create(def);
         }
 
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            // Push Inspector edits to the live world during play. SubStepCount and DebugDraw are
+            // read every frame anyway; WorkerCount is baked at world creation.
+            if (!Application.isPlaying || !_world.IsValid) return;
+            _world.SetGravity(Gravity);
+        }
+#endif
+
         internal void AddKinematic(Box3DBody body)
         {
             if (!_kinematicBodies.Contains(body)) _kinematicBodies.Add(body);

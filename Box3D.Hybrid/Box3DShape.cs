@@ -27,7 +27,19 @@ namespace Box3D.Hybrid
         private Shape _shape;
         private Body _ownBody; // only set when this shape has no Box3DBody and creates a static one
 
+        // The attach frame from AttachTo, kept so Inspector edits can rebuild geometry in place.
+        private float3 _attachPosition;
+        private quaternion _attachRotation = quaternion.identity;
+        private float3 _attachScale = new float3(1f);
+
         protected float3 LocalCenter => Center;
+
+        /// <summary>The live native shape (valid between Awake and OnDestroy).</summary>
+        protected Shape LiveShape => _shape;
+
+        protected float3 AttachedPosition => _attachPosition;
+        protected quaternion AttachedRotation => _attachRotation;
+        protected float3 AttachedScale => _attachScale;
 
         /// <summary>Sets friction, updating the live shape if it exists.</summary>
         public void SetFriction(float value)
@@ -122,8 +134,28 @@ namespace Box3D.Hybrid
         /// GameObject's lossy scale, baked into the dimensions.</summary>
         internal void AttachTo(Body body, float3 localPosition, quaternion localRotation, float3 scale)
         {
+            _attachPosition = localPosition;
+            _attachRotation = localRotation;
+            _attachScale = scale;
             _shape = CreateShape(body, localPosition, localRotation, scale);
         }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            // Push Inspector edits to the live shape during play. SetDensity with updateBodyMass
+            // re-derives mass from the current geometry, so size edits update mass too.
+            if (!Application.isPlaying || !_shape.IsValid) return;
+            _shape.SetFriction(Friction);
+            _shape.SetRestitution(Restitution);
+            UpdateLiveGeometry();
+            _shape.SetDensity(Density, updateBodyMass: true);
+        }
+#endif
+
+        /// <summary>Pushes edited geometry to the live native shape where the engine supports
+        /// in-place replacement (sphere and capsule). Other shapes keep their creation geometry.</summary>
+        protected virtual void UpdateLiveGeometry() { }
 
         protected abstract Shape CreateShape(Body body, float3 localPosition, quaternion localRotation, float3 scale);
 

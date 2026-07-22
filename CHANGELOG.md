@@ -31,6 +31,13 @@
   burst (native `World.Explode`) with radius/falloff gizmos, an Inspector **Explode** button and
   **Explode On Enable** for spawned prefabs.
 
+### Fixed
+- **Inspector edits now apply live during play** across the component layer: `Box3DWorld` gravity,
+  shape friction/restitution/density and sphere/capsule size (mass is re-derived), and every
+  joint's limits, motor and spring parameters — `OnValidate` pushes them to the native objects,
+  matching `Box3DBody` which already did this. Creation-baked state still can't change on a live
+  object: box/hull/mesh geometry, joint axes/anchors/connected bodies, and the world's worker count.
+
 ## [0.6.1] — 2026-07-13
 
 ### Added

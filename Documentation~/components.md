@@ -34,6 +34,14 @@ Building by hand instead: components live under **Add Component → Box3D** (`Sh
 one — set it to **Static** for non-moving geometry. The components drive the Transform, so any
 visual on the same GameObject follows.
 
+## Live tuning
+
+During play, Inspector edits apply to the running simulation immediately: world gravity, body
+type/damping, shape friction/restitution/density, sphere and capsule size (mass is re-derived),
+wind and explosion parameters, and every joint's limits, motor and spring settings. What stays
+fixed on a live object: box/hull/mesh geometry, joint axes/anchors/connected bodies (baked into
+the joint frames at creation), and the world's worker count.
+
 ## Box3DWorld
 
 Optional — placed automatically the first time a body needs it. Add one explicitly to tune:
