@@ -68,6 +68,19 @@ namespace Box3D.Hybrid.Editor
             Place(go, command, "Create Box3D Explosion");
         }
 
+        [MenuItem(Root + "Rope", false, 32)]
+        private static void CreateRope(MenuCommand command)
+        {
+            var go = new GameObject("Rope", typeof(LineRenderer), typeof(Box3DRope));
+            var line = go.GetComponent<LineRenderer>();
+            line.useWorldSpace = true;
+            line.widthMultiplier = 0.06f;
+            line.numCapVertices = 4;
+            line.numCornerVertices = 4;
+            line.sharedMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Line.mat");
+            Place(go, command, "Create Box3D Rope");
+        }
+
         [MenuItem(Root + "Static Box", false, 40)]
         private static void CreateStaticBox(MenuCommand command)
         {

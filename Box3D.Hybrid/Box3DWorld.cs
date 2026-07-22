@@ -49,6 +49,10 @@ namespace Box3D.Hybrid
         /// so live physics doesn't fight the replayed transforms.</summary>
         public bool Paused { get; set; }
 
+        /// <summary>The configured gravity vector (readable without a live world — the rope's
+        /// editor preview settles under the same gravity the simulation will use).</summary>
+        public Vector3 GravityVector => Gravity;
+
         /// <summary>A shared static body at the origin, used as the fixed endpoint for joints whose
         /// connected body is null (like Unity's null connectedBody = attach to the world).</summary>
         public Body WorldAnchor
