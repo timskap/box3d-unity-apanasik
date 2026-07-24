@@ -40,6 +40,13 @@
   (bullet) bodies honoring the layer collision matrix, so the rope reacts to everything it sweeps
   past; it ignores collision with its attached bodies by default (filter joints; **Collide With
   Attached** re-enables it). Renders through a LineRenderer whose width follows the rope Radius.
+- **Physics Simulation Scene tool** (**Tools → Box3D → Physics Simulation**, also in the Scene-view
+  tool palette): runs live physics on the **selected** dynamic bodies right in the editor — every
+  other enabled shape is frozen in place as static collision — so props settle into natural rest
+  poses without entering play mode. **Space** starts/stops, **left-drag** grabs a simulating body
+  and pulls it with a soft spring (release mid-swing to throw; frozen geometry blocks the pick, so
+  no grabbing through walls), **Esc** stops. Settled poses land on the real Transforms as a
+  **single undo step**, with prefab-instance overrides recorded.
 
 ### Fixed
 - **Inspector edits now apply live during play** across the component layer: `Box3DWorld` gravity,
